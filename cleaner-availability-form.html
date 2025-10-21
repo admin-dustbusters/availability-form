@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weekly Availability Submission</title>
+    <title>4-Week Availability Submission</title>
     <style>
         * {
             margin: 0;
@@ -16,36 +16,57 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .container {
             max-width: 700px;
-            margin: 0 auto;
+            width: 100%;
             background: white;
             border-radius: 16px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             overflow: hidden;
         }
+        
+        .progress-bar {
+            width: 100%;
+            background-color: #e2e8f0;
+            height: 8px;
+        }
+
+        .progress-bar-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #a270d0 100%);
+            transition: width 0.4s ease-in-out;
+        }
 
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px 30px;
+            background: #f7f8fc;
+            color: #2d3748;
+            padding: 20px 30px;
             text-align: center;
+            border-bottom: 1px solid #e2e8f0;
         }
 
         .header h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
+            font-size: 24px;
+            margin-bottom: 5px;
         }
 
         .header p {
-            opacity: 0.9;
+            color: #718096;
             font-size: 14px;
+        }
+        
+        .form-step {
+            padding: 30px 40px;
         }
 
         .form-content {
-            padding: 40px 30px;
+            padding: 0;
         }
 
         .form-group {
@@ -182,7 +203,7 @@
             font-size: 16px;
         }
 
-        .remove-slot {
+        .remove-slot-btn {
             background: #fc8181;
             color: white;
             border: none;
@@ -193,13 +214,9 @@
             font-weight: 600;
         }
 
-        .remove-slot:hover {
-            background: #f56565;
-        }
-
         .time-inputs {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
             margin-top: 15px;
         }
@@ -216,50 +233,61 @@
             width: 100%;
             margin-bottom: 20px;
         }
+        
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
 
-        .add-slot-btn:hover {
-            background: #38a169;
+        .nav-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .nav-btn.prev-btn {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+        
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+        
+        .nav-btn.prev-btn:hover {
+             background: #cbd5e0;
+             box-shadow: 0 5px 15px rgba(0,0,0, 0.1);
         }
 
         .submit-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 16px 32px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            width: 100%;
-            margin-top: 20px;
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
         }
 
         .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.3);
         }
 
-        .submit-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .loading {
+        .loading, .success-message {
             text-align: center;
-            padding: 40px 20px;
-            color: #667eea;
-            font-size: 16px;
+            padding: 80px 40px;
         }
 
         .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
+            margin: 0 auto 20px;
         }
 
         @keyframes spin {
@@ -273,14 +301,7 @@
             padding: 12px;
             border-radius: 8px;
             margin-bottom: 20px;
-        }
-
-        .success {
-            background: #c6f6d5;
-            color: #2f855a;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            text-align: center;
         }
 
         .hidden {
@@ -291,502 +312,580 @@
             font-size: 20px;
             margin-right: 8px;
         }
-
-        .info-banner {
-            background: #eef2ff;
-            border-left: 4px solid #667eea;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+        
+        .week-header {
+             font-size: 20px;
+             color: #2d3748;
+             margin-bottom: 25px;
+             border-bottom: 2px solid #e2e8f0;
+             padding-bottom: 10px;
         }
-
-        .info-banner p {
+        
+        .week-header span {
+            font-weight: 400;
+            color: #718096;
+            font-size: 16px;
+        }
+        
+        .review-section {
+            padding: 30px 40px;
+        }
+        
+        .review-week {
+            background-color: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .review-week h4 {
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+        .review-week p {
             color: #4a5568;
             font-size: 14px;
-            line-height: 1.5;
         }
+        
+        .previous-week-summary {
+            background: #eef2ff;
+            border: 1px solid #c3dafe;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+            font-size: 13px;
+            color: #4a5568;
+        }
+        
+        .previous-week-summary h4 {
+            font-size: 14px;
+            color: #5a67d8;
+            margin-bottom: 8px;
+        }
+
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>🧹 Weekly Availability Form</h1>
-            <p>Submit your availability for one week</p>
+        <div id="loadingMessage" class="loading">
+            <div class="spinner"></div>
+            <p>Loading Cleaners...</p>
         </div>
 
-        <div class="form-content">
-            <div id="loadingMessage" class="loading">
-                <div class="spinner"></div>
-                Loading...
+        <div id="mainForm" class="hidden">
+            <div class="progress-bar">
+                <div class="progress-bar-fill" id="progressBar"></div>
             </div>
+            <div class="header">
+                <h1 id="headerTitle">🧹 4-Week Availability</h1>
+                <p id="headerSubtitle">Step 1: Select your name</p>
+            </div>
+            <div class="form-content">
+                <div id="errorMessage" class="error hidden"></div>
 
-            <div id="errorMessage" class="error hidden"></div>
-            <div id="successMessage" class="success hidden"></div>
+                <form id="availabilityForm">
+                    <!-- Step 1: Name -->
+                    <div class="form-step" data-step="1">
+                        <div class="week-header">Step 1: Your Information</div>
+                        <div class="form-group">
+                            <label>Your Name: <span class="required">*</span></label>
+                            <select id="cleanerName" required>
+                                <option value="">Select your name...</option>
+                            </select>
+                        </div>
+                        <div class="nav-buttons">
+                           <span></span>
+                           <button type="button" class="nav-btn next-btn" onclick="nextStep()">Next</button>
+                        </div>
+                    </div>
 
-            <form id="availabilityForm" class="hidden">
-                <div class="info-banner">
-                    <p>📅 <strong>Tip:</strong> Submit your availability for upcoming weeks to ensure you get scheduled!</p>
-                </div>
+                    <!-- Steps 2-5 will be generated here -->
 
-                <div class="form-group">
-                    <label>Your Name: <span class="required">*</span></label>
-                    <select id="cleanerName" required>
-                        <option value="">Select your name...</option>
-                    </select>
-                </div>
+                    <!-- Step 6: Review -->
+                    <div class="form-step hidden" data-step="6">
+                         <div class="week-header">Step 6: Review Your Submission</div>
+                         <div id="reviewContainer"></div>
+                         <div class="nav-buttons">
+                           <button type="button" class="nav-btn prev-btn" onclick="prevStep()">Back</button>
+                           <button type="submit" class="nav-btn submit-btn">Submit All 4 Weeks</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+         <div id="successMessage" class="success-message hidden">
+            <h2>✅ All Done!</h2>
+            <p>Your availability for the next 4 weeks has been submitted successfully.</p>
+        </div>
+    </div>
 
-                <div class="form-group">
-                    <label>Week Starting (Monday): <span class="required">*</span></label>
-                    <input type="date" id="weekStart" required>
-                </div>
+<script>
+    // State Management
+    let currentStep = 1;
+    let totalSteps = 6;
+    let cleaners = [];
+    let weeklyData = [{}, {}, {}, {}];
+    const weekStartDates = [];
+    let timeSlotCounts = [0, 0, 0, 0];
 
+    // --- UTILITY ---
+    function getUrlParams() {
+        return { name: new URLSearchParams(window.location.search).get('name') };
+    }
+
+    function showError(message) {
+        const errorDiv = document.getElementById('errorMessage');
+        errorDiv.textContent = message;
+        errorDiv.classList.remove('hidden');
+        setTimeout(() => errorDiv.classList.add('hidden'), 5000);
+    }
+    
+    function updateProgressBar() {
+        const progress = ((currentStep - 1) / (totalSteps - 1)) * 100;
+        document.getElementById('progressBar').style.width = `${progress}%`;
+        const subtitles = [
+            "Step 1: Select your name",
+            `Step 2: Availability for Week 1 (${formatDate(weekStartDates[0])})`,
+            `Step 3: Availability for Week 2 (${formatDate(weekStartDates[1])})`,
+            `Step 4: Availability for Week 3 (${formatDate(weekStartDates[2])})`,
+            `Step 5: Availability for Week 4 (${formatDate(weekStartDates[3])})`,
+            "Step 6: Review Your Submission"
+        ];
+        document.getElementById('headerSubtitle').textContent = subtitles[currentStep - 1];
+    }
+    
+    function formatDate(date) {
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+    
+    // --- NAVIGATION ---
+    function nextStep() {
+        if (!validateStep(currentStep)) return;
+        saveStepData(currentStep);
+        if (currentStep < totalSteps) {
+            document.querySelector(`[data-step="${currentStep}"]`).classList.add('hidden');
+            currentStep++;
+            document.querySelector(`[data-step="${currentStep}"]`).classList.remove('hidden');
+            if (currentStep === totalSteps) buildReviewPage();
+            updateProgressBar();
+        }
+    }
+
+    function prevStep() {
+        if (currentStep > 1) {
+            document.querySelector(`[data-step="${currentStep}"]`).classList.add('hidden');
+            currentStep--;
+            document.querySelector(`[data-step="${currentStep}"]`).classList.remove('hidden');
+            updateProgressBar();
+        }
+    }
+    
+    // --- DATA HANDLING AND VALIDATION ---
+    function validateStep(step) {
+        if (step === 1) {
+            if (document.getElementById('cleanerName').value === '') {
+                showError("Please select your name.");
+                return false;
+            }
+        }
+        if (step >= 2 && step <= 5) {
+            const weekIndex = step - 2;
+            const type = document.querySelector(`input[name="submissionType_${weekIndex}"]:checked`)?.value;
+            if (!type) {
+                showError("Please choose a submission method for this week.");
+                return false;
+            }
+            if (type === 'eachDay') {
+                const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+                for (const day of days) {
+                    if (document.querySelectorAll(`input[name="${day}_${weekIndex}"]:checked`).length === 0) {
+                        showError(`Please select an option for every day of the week.`);
+                        return false;
+                    }
+                }
+            }
+             if (type === 'timeSlots' && timeSlotCounts[weekIndex] === 0) {
+                showError(`Please add at least one time slot for this week.`);
+                return false;
+            }
+        }
+        document.getElementById('errorMessage').classList.add('hidden');
+        return true;
+    }
+    
+    function saveStepData(step) {
+        if (step >= 2 && step <= 5) {
+            const weekIndex = step - 2;
+            const type = document.querySelector(`input[name="submissionType_${weekIndex}"]:checked`)?.value;
+            
+            // This is a deep copy to handle the "sameAsPrevious" chaining correctly.
+            if (type === 'sameAsPrevious') {
+                weeklyData[weekIndex] = JSON.parse(JSON.stringify(weeklyData[weekIndex - 1]));
+                // We still mark its original type for the review page.
+                weeklyData[weekIndex].submissionTypeForReview = 'sameAsPrevious';
+                return; // Stop here after copying
+            }
+
+            // Otherwise, build the data object from the form fields.
+            const data = { submissionType: type, submissionTypeForReview: type };
+
+            if (type === 'eachDay') {
+                data.days = {
+                    monday: Array.from(document.querySelectorAll(`input[name="monday_${weekIndex}"]:checked`)).map(c => c.value).join(', '),
+                    tuesday: Array.from(document.querySelectorAll(`input[name="tuesday_${weekIndex}"]:checked`)).map(c => c.value).join(', '),
+                    wednesday: Array.from(document.querySelectorAll(`input[name="wednesday_${weekIndex}"]:checked`)).map(c => c.value).join(', '),
+                    thursday: Array.from(document.querySelectorAll(`input[name="thursday_${weekIndex}"]:checked`)).map(c => c.value).join(', '),
+                    friday: Array.from(document.querySelectorAll(`input[name="friday_${weekIndex}"]:checked`)).map(c => c.value).join(', '),
+                    saturday: Array.from(document.querySelectorAll(`input[name="saturday_${weekIndex}"]:checked`)).map(c => c.value).join(', '),
+                    sunday: Array.from(document.querySelectorAll(`input[name="sunday_${weekIndex}"]:checked`)).map(c => c.value).join(', '),
+                };
+            } else if (type === 'timeSlots') {
+                data.timeSlots = [];
+                const slots = document.querySelectorAll(`#timeSlotsContainer_${weekIndex} .time-slot-container`);
+                slots.forEach((slot) => {
+                     data.timeSlots.push({
+                        day: slot.querySelector(`select[name^="slotDay"]`).value,
+                        start: slot.querySelector(`select[name^="slotStart"]`).value,
+                        end: slot.querySelector(`select[name^="slotEnd"]`).value,
+                    });
+                });
+            }
+            weeklyData[weekIndex] = data;
+        }
+    }
+    
+    function buildReviewPage() {
+        const container = document.getElementById('reviewContainer');
+        container.innerHTML = '';
+        weeklyData.forEach((data, index) => {
+            const weekDiv = document.createElement('div');
+            weekDiv.className = 'review-week';
+
+            let content = `<h4>Week ${index + 1} (${formatDate(weekStartDates[index])})</h4>`;
+            if (data.submissionTypeForReview === 'sameAsPrevious') {
+                 content += `<p>✅ Same as Week ${index}</p>`;
+            } else if (data.submissionType === 'eachDay') {
+                 content += `<p>📝 Submitted availability for each day.</p>`;
+            } else if (data.submissionType === 'timeSlots') {
+                 content += `<p>🎯 Submitted ${data.timeSlots ? data.timeSlots.length : 0} specific time slot(s).</p>`;
+            } else {
+                 content += `<p>No availability submitted for this week.</p>`;
+            }
+            weekDiv.innerHTML = content;
+            container.appendChild(weekDiv);
+        });
+    }
+
+    // --- DYNAMIC UI ---
+    function generateWeekForms() {
+        const form = document.getElementById('availabilityForm');
+        const reviewStep = form.querySelector('[data-step="6"]');
+        for (let i = 0; i < 4; i++) {
+            const step = i + 2;
+            const weekStep = document.createElement('div');
+            weekStep.className = 'form-step hidden';
+            weekStep.dataset.step = step;
+
+            const sameAsPreviousOption = i > 0 ? `
+                <label class="radio-option">
+                    <input type="radio" name="submissionType_${i}" value="sameAsPrevious">
+                    <span><span class="icon">🔄</span>Use same availability as previous week</span>
+                </label>
+                <div class="previous-week-summary hidden" id="summaryContainer_${i}"></div>
+                ` : '';
+
+            weekStep.innerHTML = `
+                <div class="week-header">Step ${step}: Week ${i + 1} <span>(${formatDate(weekStartDates[i])})</span></div>
                 <div class="form-group">
                     <label>How would you like to submit your availability? <span class="required">*</span></label>
                     <div class="radio-group">
-                        <label class="radio-option" data-type="eachDay">
-                            <input type="radio" name="submissionType" value="eachDay" required>
+                        ${sameAsPreviousOption}
+                        <label class="radio-option">
+                            <input type="radio" name="submissionType_${i}" value="eachDay">
                             <span><span class="icon">📝</span>Fill out each day</span>
                         </label>
-                        <label class="radio-option" data-type="timeSlots">
-                            <input type="radio" name="submissionType" value="timeSlots" required>
+                        <label class="radio-option">
+                            <input type="radio" name="submissionType_${i}" value="timeSlots">
                             <span><span class="icon">🎯</span>I can only work specific hours (part-time)</span>
                         </label>
                     </div>
                 </div>
-
-                <!-- Each Day Section -->
-                <div id="eachDaySection" class="hidden">
-                    <div class="day-availability">
-                        <h3>Monday <span class="required">*</span></h3>
-                        <div class="checkbox-group">
-                            <label class="checkbox-option">
-                                <input type="checkbox" name="monday" value="All Day (8am-8pm)">
-                                <span>All Day (8am-8pm)</span>
-                            </label>
-                            <label class="checkbox-option">
-                                <input type="checkbox" name="monday" value="Morning (8am-12pm)">
-                                <span>Morning (8am-12pm)</span>
-                            </label>
-                            <label class="checkbox-option">
-                                <input type="checkbox" name="monday" value="Afternoon (12pm-5pm)">
-                                <span>Afternoon (12pm-5pm)</span>
-                            </label>
-                            <label class="checkbox-option">
-                                <input type="checkbox" name="monday" value="Evening (5pm-8pm)">
-                                <span>Evening (5pm-8pm)</span>
-                            </label>
-                            <label class="checkbox-option">
-                                <input type="checkbox" name="monday" value="Not Available">
-                                <span>Not Available</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="day-availability">
-                        <h3>Tuesday <span class="required">*</span></h3>
-                        <div class="checkbox-group">
-                            <label class="checkbox-option">
-                                <input type="checkbox" name="tuesday" value="All Day (8am-8pm)">
-                                <span>All Day (8am-8pm)</span>
-                            </label>
-                            <label class="checkbox-option">
-                                <input type="checkbox" name="tuesday" value="Morning (8am-12pm)">
-                                <span>Morning (8am-12pm)</span>
-                            </label>
-                            <label class="checkbox-option">
-                                <input type="checkbox" name="tuesday" value="Afternoon (12pm-5pm)">
-                                <span>Afternoon (12pm-5pm)</span>
-                            </label>
-                            <label class="checkbox-option">
-                                <input type="checkbox" name="tuesday" value="Evening (5pm-8pm)">
-                                <span>Evening (5pm-8pm)</span>
-                            </label>
-                            <label class="checkbox-option">
-                                <input type="checkbox" name="tuesday" value="Not Available">
-                                <span>Not Available</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="day-availability">
-                        <h3>Wednesday <span class="required">*</span></h3>
-                        <div class="checkbox-group">
-                            <label class="checkbox-option">
-                                <input type="checkbox" name="wednesday" value="All Day (8am-8pm)">
-                                <span>All Day (8am-8pm)</span>
-                            </label>
-                            <label class="checkbox-option">
-                                <input type="checkbox" name="wednesday" value="Morning (8am-12pm)">
-                                <span>Morning (8am-12pm)</span>
-                            </label>
-                            <label class="checkbox-option">
-                                <input type="checkbox" name="wednesday" value="Afternoon (12pm-5pm)">
-                                <span>Afternoon (12pm-5pm)</span>
-                            </label>
-                            <label class="checkbox-option">
-                                <input type="checkbox" name="wednesday" value="Evening (5pm-8pm)">
-                                <span>Evening (5pm-8pm)</span>
-                            </label>
-                            <label class="checkbox-option">
-                                <input type="checkbox" name="wednesday" value="Not Available">
-                                <span>Not Available</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="day-availability">
-                        <h3>Thursday <span class="required">*</span></h3>
-                        <div class="checkbox-group">
-                            <label class="checkbox-option">
-                                <input type="checkbox" name="thursday" value="All Day (8am-8pm)">
-                                <span>All Day (8am-8pm)</span>
-                            </label>
-                            <label class="checkbox-option">
-                                <input type="checkbox" name="thursday" value="Morning (8am-12pm)">
-                                <span>Morning (8am-12pm)</span>
-                            </label>
-                            <label class="checkbox-option">
-                                <input type="checkbox" name="thursday" value="Afternoon (12pm-5pm)">
-                                <span>Afternoon (12pm-5pm)</span>
-                            </label>
-                            <label class="checkbox-option">
-                                <input type="checkbox" name="thursday" value="Evening (5pm-8pm)">
-                                <span>Evening (5pm-8pm)</span>
-                            </label>
-                            <label class="checkbox-option">
-                                <input type="checkbox" name="thursday" value="Not Available">
-                                <span>Not Available</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="day-availability">
-                        <h3>Friday <span class="required">*</span></h3>
-                        <div class="checkbox-group">
-                            <label class="checkbox-option">
-                                <input type="checkbox" name="friday" value="All Day (8am-8pm)">
-                                <span>All Day (8am-8pm)</span>
-                            </label>
-                            <label class="checkbox-option">
-                                <input type="checkbox" name="friday" value="Morning (8am-12pm)">
-                                <span>Morning (8am-12pm)</span>
-                            </label>
-                            <label class="checkbox-option">
-                                <input type="checkbox" name="friday" value="Afternoon (12pm-5pm)">
-                                <span>Afternoon (12pm-5pm)</span>
-                            </label>
-                            <label class="checkbox-option">
-                                <input type="checkbox" name="friday" value="Evening (5pm-8pm)">
-                                <span>Evening (5pm-8pm)</span>
-                            </label>
-                            <label class="checkbox-option">
-                                <input type="checkbox" name="friday" value="Not Available">
-                                <span>Not Available</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="day-availability">
-                        <h3>Saturday <span class="required">*</span></h3>
-                        <div class="checkbox-group">
-                            <label class="checkbox-option">
-                                <input type="checkbox" name="saturday" value="All Day (8am-8pm)">
-                                <span>All Day (8am-8pm)</span>
-                            </label>
-                            <label class="checkbox-option">
-                                <input type="checkbox" name="saturday" value="Morning (8am-12pm)">
-                                <span>Morning (8am-12pm)</span>
-                            </label>
-                            <label class="checkbox-option">
-                                <input type="checkbox" name="saturday" value="Afternoon (12pm-5pm)">
-                                <span>Afternoon (12pm-5pm)</span>
-                            </label>
-                            <label class="checkbox-option">
-                                <input type="checkbox" name="saturday" value="Evening (5pm-8pm)">
-                                <span>Evening (5pm-8pm)</span>
-                            </label>
-                            <label class="checkbox-option">
-                                <input type="checkbox" name="saturday" value="Not Available">
-                                <span>Not Available</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="day-availability">
-                        <h3>Sunday <span class="required">*</span></h3>
-                        <div class="checkbox-group">
-                            <label class="checkbox-option">
-                                <input type="checkbox" name="sunday" value="All Day (8am-8pm)">
-                                <span>All Day (8am-8pm)</span>
-                            </label>
-                            <label class="checkbox-option">
-                                <input type="checkbox" name="sunday" value="Morning (8am-12pm)">
-                                <span>Morning (8am-12pm)</span>
-                            </label>
-                            <label class="checkbox-option">
-                                <input type="checkbox" name="sunday" value="Afternoon (12pm-5pm)">
-                                <span>Afternoon (12pm-5pm)</span>
-                            </label>
-                            <label class="checkbox-option">
-                                <input type="checkbox" name="sunday" value="Evening (5pm-8pm)">
-                                <span>Evening (5pm-8pm)</span>
-                            </label>
-                            <label class="checkbox-option">
-                                <input type="checkbox" name="sunday" value="Not Available">
-                                <span>Not Available</span>
-                            </label>
-                        </div>
-                    </div>
+                <div class="each-day-section hidden">
+                    ${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => `
+                        <div class="day-availability">
+                            <h3>${day} <span class="required">*</span></h3>
+                            <div class="checkbox-group">
+                                ${['All Day (8am-8pm)', 'Morning (8am-12pm)', 'Afternoon (12pm-5pm)', 'Evening (5pm-8pm)', 'Not Available'].map(option => `
+                                <label class="checkbox-option"><input type="checkbox" name="${day.toLowerCase()}_${i}" value="${option}"><span>${option}</span></label>`).join('')}
+                            </div>
+                        </div>`).join('')}
                 </div>
-
-                <!-- Time Slot Section -->
-                <div id="timeSlotSection" class="hidden">
-                    <div id="timeSlotsContainer"></div>
-                    <button type="button" class="add-slot-btn" onclick="addTimeSlot()">+ Add Time Slot</button>
+                <div class="time-slot-section hidden">
+                    <div id="timeSlotsContainer_${i}"></div>
+                    <button type="button" class="add-slot-btn" onclick="addTimeSlot(${i})">+ Add Time Slot</button>
                 </div>
-
-                <div class="form-group">
-                    <label>Additional Notes (Optional)</label>
-                    <textarea id="additionalNotes" placeholder="Any scheduling notes or special requests?"></textarea>
-                </div>
-
-                <button type="submit" class="submit-btn">Submit Availability</button>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        let timeSlotCount = 0;
-        let cleaners = [];
-
-        // Get URL parameters for pre-filling
-        function getUrlParams() {
-            const params = new URLSearchParams(window.location.search);
-            return {
-                name: params.get('name'),
-                week: params.get('week')
-            };
+                <div class="nav-buttons">
+                    <button type="button" class="nav-btn prev-btn" onclick="prevStep()">Back</button>
+                    <button type="button" class="nav-btn next-btn" onclick="nextStep()">Next</button>
+                </div>`;
+            form.insertBefore(weekStep, reviewStep);
         }
-
-        // Load cleaners from n8n webhook
-async function loadCleaners() {
-    try {
-        const WEBHOOK_URL = 'https://dustbusters-n8n.duckdns.org/webhook/cleaners-list';
-        
-        const response = await fetch(WEBHOOK_URL);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        // Your webhook returns the object directly, not in an array
-        if (!data.success || !data.cleaners || data.cleaners.length === 0) {
-            throw new Error('No cleaners found');
-        }
-
-        cleaners = data.cleaners;
-
-        const select = document.getElementById('cleanerName');
-        cleaners.forEach(name => {
-            const option = document.createElement('option');
-            option.value = name;
-            option.textContent = name;
-            select.appendChild(option);
-        });
-
-        // Pre-fill from URL if available
-        const urlParams = getUrlParams();
-        if (urlParams.name && cleaners.includes(urlParams.name)) {
-            select.value = urlParams.name;
-        }
-        if (urlParams.week) {
-            document.getElementById('weekStart').value = urlParams.week;
-        }
-
-        document.getElementById('loadingMessage').classList.add('hidden');
-        document.getElementById('availabilityForm').classList.remove('hidden');
-    } catch (error) {
-        console.error('Load error:', error);
-        document.getElementById('loadingMessage').classList.add('hidden');
-        showError('Failed to load cleaners: ' + error.message);
+        addEventListenersToWeekForms();
     }
-}
-
-        // Set minimum date to next Monday
-        function setMinDate() {
-            const today = new Date();
-            const dayOfWeek = today.getDay();
-            const daysUntilMonday = dayOfWeek === 0 ? 1 : (8 - dayOfWeek);
-            const nextMonday = new Date(today);
-            nextMonday.setDate(today.getDate() + daysUntilMonday);
-            
-            const minDate = nextMonday.toISOString().split('T')[0];
-            document.getElementById('weekStart').min = minDate;
-            if (!getUrlParams().week) {
-                document.getElementById('weekStart').value = minDate;
-            }
-        }
-
-        // Handle radio button selection styling
-        document.querySelectorAll('.radio-option').forEach(option => {
-            option.addEventListener('click', function() {
-                document.querySelectorAll('.radio-option').forEach(o => o.classList.remove('selected'));
-                this.classList.add('selected');
-                this.querySelector('input[type="radio"]').checked = true;
-                this.querySelector('input[type="radio"]').dispatchEvent(new Event('change'));
-            });
-        });
-
-        // Show/hide sections based on submission type
-        document.querySelectorAll('input[name="submissionType"]').forEach(radio => {
+    
+    function addEventListenersToWeekForms() {
+        document.querySelectorAll('input[name^="submissionType_"]').forEach(radio => {
             radio.addEventListener('change', (e) => {
-                const eachDaySection = document.getElementById('eachDaySection');
-                const timeSlotSection = document.getElementById('timeSlotSection');
+                const weekIndex = parseInt(e.target.name.split('_')[1]);
+                const stepElement = e.target.closest('.form-step');
+                const eachDaySection = stepElement.querySelector('.each-day-section');
+                const timeSlotSection = stepElement.querySelector('.time-slot-section');
+                const summaryContainer = stepElement.querySelector(`#summaryContainer_${weekIndex}`);
                 
                 eachDaySection.classList.add('hidden');
                 timeSlotSection.classList.add('hidden');
-                
+                if(summaryContainer) summaryContainer.classList.add('hidden');
+
                 if (e.target.value === 'eachDay') {
                     eachDaySection.classList.remove('hidden');
                 } else if (e.target.value === 'timeSlots') {
                     timeSlotSection.classList.remove('hidden');
-                    if (timeSlotCount === 0) {
-                        addTimeSlot();
+                    if (timeSlotCounts[weekIndex] === 0) addTimeSlot(weekIndex);
+                } else if (e.target.value === 'sameAsPrevious') {
+                    if (summaryContainer) {
+                        updatePreviousWeekSummary(weekIndex);
+                        summaryContainer.classList.remove('hidden');
                     }
                 }
             });
         });
+    }
 
-        // Add time slot
-        function addTimeSlot() {
-            if (timeSlotCount >= 7) {
-                showError('Maximum 7 time slots allowed');
-                return;
+    function updatePreviousWeekSummary(weekIndex) {
+        // Trace back to find the original source data
+        let sourceData = weeklyData[weekIndex - 1];
+        let sourceIndex = weekIndex - 1;
+        while(sourceData && sourceData.submissionType === 'sameAsPrevious' && sourceIndex > 0) {
+            sourceIndex--;
+            sourceData = weeklyData[sourceIndex];
+        }
+
+        const summaryContainer = document.getElementById(`summaryContainer_${weekIndex}`);
+        if (!sourceData || Object.keys(sourceData).length === 0 || sourceData.submissionType === 'sameAsPrevious') {
+            summaryContainer.innerHTML = '<h4>No data from previous week to display.</h4>';
+            return;
+        }
+        
+        let summaryHTML = `<h4>Preview of Week ${weekIndex} Availability:</h4>`;
+        if (sourceData.submissionType === 'eachDay') {
+            summaryHTML += '<ul>';
+            for (const [day, availability] of Object.entries(sourceData.days)) {
+                if(availability) summaryHTML += `<li><strong>${day.charAt(0).toUpperCase() + day.slice(1)}:</strong> ${availability}</li>`;
             }
-            
-            timeSlotCount++;
-            const container = document.getElementById('timeSlotsContainer');
-            const slotDiv = document.createElement('div');
-            slotDiv.className = 'time-slot-container';
-            slotDiv.id = `slot-${timeSlotCount}`;
-            slotDiv.innerHTML = `
-                <div class="time-slot-header">
-                    <h3>Time Slot ${timeSlotCount}</h3>
-                    ${timeSlotCount > 1 ? `<button type="button" class="remove-slot" onclick="removeTimeSlot(${timeSlotCount})">Remove</button>` : ''}
-                </div>
-                <div class="form-group">
-                    <label>Which day can you work?</label>
-                    <select name="slotDay${timeSlotCount}" required>
-                        <option value="">Select day...</option>
-                        <option value="Monday">Monday</option>
-                        <option value="Tuesday">Tuesday</option>
-                        <option value="Wednesday">Wednesday</option>
-                        <option value="Thursday">Thursday</option>
-                        <option value="Friday">Friday</option>
-                        <option value="Saturday">Saturday</option>
-                        <option value="Sunday">Sunday</option>
+            summaryHTML += '</ul>';
+        } else if (sourceData.submissionType === 'timeSlots' && sourceData.timeSlots) {
+            summaryHTML += `<ul>`;
+            sourceData.timeSlots.forEach(slot => {
+                 summaryHTML += `<li><strong>${slot.day}:</strong> ${slot.start} - ${slot.end}</li>`;
+            });
+            summaryHTML += `</ul>`;
+        } else {
+            summaryHTML += '<p>No specific availability set for previous week.</p>';
+        }
+        summaryContainer.innerHTML = summaryHTML;
+    }
+    
+    function addTimeSlot(weekIndex) {
+        if (timeSlotCounts[weekIndex] >= 7) return;
+        timeSlotCounts[weekIndex]++;
+        const container = document.getElementById(`timeSlotsContainer_${weekIndex}`);
+        const slotDiv = document.createElement('div');
+        slotDiv.className = 'time-slot-container';
+        slotDiv.dataset.slotId = timeSlotCounts[weekIndex];
+        
+        slotDiv.innerHTML = `
+            <div class="time-slot-header">
+                <h3>Time Slot ${timeSlotCounts[weekIndex]}</h3>
+                <button type="button" class="remove-slot-btn" onclick="this.parentElement.parentElement.remove(); timeSlotCounts[${weekIndex}]--;">Remove</button>
+            </div>
+            <div class="time-inputs">
+                 <div class="form-group">
+                    <label>Day</label>
+                    <select name="slotDay_${weekIndex}_${timeSlotCounts[weekIndex]}" required>
+                        <option value="">Select...</option>
+                        ${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(d => `<option value="${d}">${d}</option>`).join('')}
                     </select>
                 </div>
-                <div class="time-inputs">
-                    <div class="form-group">
-                        <label>Start time</label>
-                        <select name="slotStart${timeSlotCount}" required>
-                            <option value="">Select time...</option>
-                            <option value="06:00">6:00 AM</option>
-                            <option value="07:00">7:00 AM</option>
-                            <option value="08:00">8:00 AM</option>
-                            <option value="09:00">9:00 AM</option>
-                            <option value="10:00">10:00 AM</option>
-                            <option value="11:00">11:00 AM</option>
-                            <option value="12:00">12:00 PM</option>
-                            <option value="13:00">1:00 PM</option>
-                            <option value="14:00">2:00 PM</option>
-                            <option value="15:00">3:00 PM</option>
-                            <option value="16:00">4:00 PM</option>
-                            <option value="17:00">5:00 PM</option>
-                            <option value="18:00">6:00 PM</option>
-                            <option value="19:00">7:00 PM</option>
-                            <option value="20:00">8:00 PM</option>
-                            <option value="21:00">9:00 PM</option>
-                            <option value="22:00">10:00 PM</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>End time</label>
-                        <select name="slotEnd${timeSlotCount}" required>
-                            <option value="">Select time...</option>
-                            <option value="07:00">7:00 AM</option>
-                            <option value="08:00">8:00 AM</option>
-                            <option value="09:00">9:00 AM</option>
-                            <option value="10:00">10:00 AM</option>
-                            <option value="11:00">11:00 AM</option>
-                            <option value="12:00">12:00 PM</option>
-                            <option value="13:00">1:00 PM</option>
-                            <option value="14:00">2:00 PM</option>
-                            <option value="15:00">3:00 PM</option>
-                            <option value="16:00">4:00 PM</option>
-                            <option value="17:00">5:00 PM</option>
-                            <option value="18:00">6:00 PM</option>
-                            <option value="19:00">7:00 PM</option>
-                            <option value="20:00">8:00 PM</option>
-                            <option value="21:00">9:00 PM</option>
-                            <option value="22:00">10:00 PM</option>
-                            <option value="23:00">11:00 PM</option>
-                        </select>
-                    </div>
+                <div class="form-group">
+                    <label>Start time</label>
+                     <select name="slotStart_${weekIndex}_${timeSlotCounts[weekIndex]}" required>
+                         <option value="">Select...</option>
+                        ${Array.from({length: 17}, (_, i) => i + 6).map(h => `<option value="${String(h).padStart(2,'0')}:00">${h%12||12}:00 ${h<12?'AM':'PM'}</option>`).join('')}
+                    </select>
                 </div>
-            `;
-            container.appendChild(slotDiv);
+                <div class="form-group">
+                    <label>End time</label>
+                     <select name="slotEnd_${weekIndex}_${timeSlotCounts[weekIndex]}" required>
+                        <option value="">Select...</option>
+                        ${Array.from({length: 17}, (_, i) => i + 7).map(h => `<option value="${String(h).padStart(2,'0')}:00">${h%12||12}:00 ${h<12?'AM':'PM'}</option>`).join('')}
+                    </select>
+                </div>
+            </div>`;
+        container.appendChild(slotDiv);
+    }
+
+    // --- INITIALIZATION & SUBMISSION ---
+    async function initializeForm() {
+        try {
+            const response = await fetch('https://dustbusters-n8n.duckdns.org/webhook/cleaners-list');
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
+            if (!data.success || !Array.isArray(data.cleaners)) throw new Error('Invalid data format');
+
+            const select = document.getElementById('cleanerName');
+            data.cleaners.forEach(name => {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                select.appendChild(option);
+            });
             
-            if (timeSlotCount >= 7) {
-                document.querySelector('.add-slot-btn').style.display = 'none';
+            const urlParams = getUrlParams();
+            if (urlParams.name) select.value = urlParams.name;
+            
+            const today = new Date();
+            const daysUntilMonday = (8 - today.getDay()) % 7 || 7;
+            const nextMonday = new Date(today);
+            nextMonday.setDate(today.getDate() + daysUntilMonday);
+            
+            for (let i = 0; i < 4; i++) {
+                const weekDate = new Date(nextMonday);
+                weekDate.setDate(nextMonday.getDate() + (i * 7));
+                weekStartDates.push(weekDate);
             }
-        }
 
-        // Remove time slot
-        function removeTimeSlot(id) {
-            const slot = document.getElementById(`slot-${id}`);
-            if (slot) {
-                slot.remove();
-                timeSlotCount--;
-                document.querySelector('.add-slot-btn').style.display = 'block';
+            generateWeekForms();
+            updateProgressBar();
+            document.getElementById('loadingMessage').classList.add('hidden');
+            document.getElementById('mainForm').classList.remove('hidden');
+
+        } catch (error) {
+            console.error('Init error:', error);
+            document.getElementById('loadingMessage').innerHTML = `<div class="error">Failed to load: ${error.message}. Please refresh.</div>`;
+        }
+    }
+
+    document.getElementById('availabilityForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = document.querySelector('.submit-btn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Submitting...';
+
+        const cleanerName = document.getElementById('cleanerName').value;
+        const submissions = [];
+
+        for (let i = 0; i < 4; i++) {
+            // THIS IS THE FIX: Trace back to the original source data
+            let data = weeklyData[i];
+            let sourceIndex = i;
+            while (data && data.submissionType === 'sameAsPrevious' && sourceIndex > 0) {
+                sourceIndex--;
+                data = weeklyData[sourceIndex];
             }
-        }
-
-        // Show error message
-        function showError(message) {
-            const errorDiv = document.getElementById('errorMessage');
-            errorDiv.textContent = message;
-            errorDiv.classList.remove('hidden');
-            setTimeout(() => errorDiv.classList.add('hidden'), 5000);
-            window.scrollTo(0, 0);
-        }
-
-        // Show success message
-        function showSuccess(message) {
-            const successDiv = document.getElementById('successMessage');
-            successDiv.textContent = message;
-            successDiv.classList.remove('hidden');
-            window.scrollTo(0, 0);
-        }
-
-        // Handle form submission
-        document.getElementById('availabilityForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
             
-            const submissionType = document.querySelector('input[name="submissionType"]:checked')?.value;
-            
-            // Validate "Fill out each day" - at least one option per day required
-            if (submissionType === 'eachDay') {
-                const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-                const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-                
-                for (let i = 0; i < days.length; i++) {
-                    const checkboxes = document.querySelectorAll(`input[name="${days[i]}"]:checked`);
-                    if (checkboxes.length === 0) {
-                        showError(`Please select at least one availability option for ${dayNames[i]}`);
-                        return;
+            // If after tracing we still don't have data, skip this week
+            if (!data || Object.keys(data).length === 0) continue;
+
+
+            let submissionTypeText = '';
+            if (data.submissionType === 'eachDay') {
+                submissionTypeText = '📝 Fill out each day';
+            } else if (data.submissionType === 'timeSlots') {
+                submissionTypeText = '⏰ I can only work specific hours (part-time)';
+            } else {
+                 // Handle case where copied data still needs a type string
+                 // This assumes the source data will have a valid type
+                if (data.days) submissionTypeText = '📝 Fill out each day';
+                if (data.timeSlots) submissionTypeText = '⏰ I can only work specific hours (part-time)';
+            }
+
+
+            const payload = {
+                'Submission ID': crypto.randomUUID(),
+                'Submission time': new Date().toISOString().slice(0, 19).replace('T', ' '),
+                'Your Name:': cleanerName,
+                'Week Starting (Monday)': weekStartDates[i].toISOString().split('T')[0],
+                'How would you like to submit your availability?': submissionTypeText,
+            };
+
+            // Initialize all fields to match n8n processing logic
+            for(let j=1; j<=7; j++) {
+                payload[`Which day can you work? (Time Slot ${j})`] = '';
+                payload[`Start time (Time Slot ${j})`] = '';
+                payload[`End time (Time Slot ${j})`] = '';
+            }
+             // Handle the special case for the first end time slot
+            payload['End time (Time Slot 1) (1)'] = '';
+
+            ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].forEach(d => payload[`${d} Availability`] = '');
+
+            if (data.days) {
+                Object.assign(payload, {
+                    'Monday Availability': data.days?.monday || '', 'Tuesday Availability': data.days?.tuesday || '',
+                    'Wednesday Availability': data.days?.wednesday || '', 'Thursday Availability': data.days?.thursday || '',
+                    'Friday Availability': data.days?.friday || '', 'Saturday Availability': data.days?.saturday || '',
+                    'Sunday Availability': data.days?.sunday || '',
+                });
+            } else if (data.timeSlots) {
+                data.timeSlots.forEach((slot, j) => {
+                    const formatTo12Hour = (time24) => {
+                        if (!time24) return '';
+                        const [hour, minute] = time24.split(':');
+                        const h = parseInt(hour);
+                        const ampm = h >= 12 ? 'PM' : 'AM';
+                        const h12 = h % 12 || 12;
+                        return `${h12}:${minute} ${ampm}`;
+                    };
+
+                    const slotNum = j + 1;
+                    payload[`Which day can you work? (Time Slot ${slotNum})`] = slot.day;
+                    payload[`Start time (Time Slot ${slotNum})`] = formatTo12Hour(slot.start);
+                    
+                    if (slotNum === 1) {
+                        payload['End time (Time Slot 1)'] = formatTo12Hour(slot.end);
+                        payload['End time (Time Slot 1) (1)'] = formatTo12Hour(slot.end);
+                    } else {
+                        payload[`End time (Time Slot ${slotNum})`] = formatTo12Hour(slot.end);
                     }
-                }
+                });
+            }
+            submissions.push(payload);
+        }
+
+        try {
+            for (const payload of submissions) {
+                const response = await fetch('https://dustbusters-n8n.duckdns.org/webhook/submit-availability', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+                if (!response.ok) throw new Error(`Submission failed for week starting ${payload['Week Starting (Monday)']}`);
+                const result = await response.json();
+                if (!result.success) throw new Error('Server indicated submission failure.');
+            }
+            
+            document.getElementById('mainForm').classList.add('hidden');
+            document.getElementById('successMessage').classList.remove('hidden');
+        } catch (error) {
+            showError(`Submission Failed: ${error.message}. Please try again.`);
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit All 4 Weeks';
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', initializeForm);
+</script>
+</body>
+</html>
+
