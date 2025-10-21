@@ -1,4 +1,4 @@
-\<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -355,7 +355,7 @@
                 <!-- Each Day Section -->
                 <div id="eachDaySection" class="hidden">
                     <div class="day-availability">
-                        <h3>Monday</h3>
+                        <h3>Monday <span class="required">*</span></h3>
                         <div class="checkbox-group">
                             <label class="checkbox-option">
                                 <input type="checkbox" name="monday" value="All Day (8am-8pm)">
@@ -381,7 +381,7 @@
                     </div>
 
                     <div class="day-availability">
-                        <h3>Tuesday</h3>
+                        <h3>Tuesday <span class="required">*</span></h3>
                         <div class="checkbox-group">
                             <label class="checkbox-option">
                                 <input type="checkbox" name="tuesday" value="All Day (8am-8pm)">
@@ -407,7 +407,7 @@
                     </div>
 
                     <div class="day-availability">
-                        <h3>Wednesday</h3>
+                        <h3>Wednesday <span class="required">*</span></h3>
                         <div class="checkbox-group">
                             <label class="checkbox-option">
                                 <input type="checkbox" name="wednesday" value="All Day (8am-8pm)">
@@ -433,7 +433,7 @@
                     </div>
 
                     <div class="day-availability">
-                        <h3>Thursday</h3>
+                        <h3>Thursday <span class="required">*</span></h3>
                         <div class="checkbox-group">
                             <label class="checkbox-option">
                                 <input type="checkbox" name="thursday" value="All Day (8am-8pm)">
@@ -459,7 +459,7 @@
                     </div>
 
                     <div class="day-availability">
-                        <h3>Friday</h3>
+                        <h3>Friday <span class="required">*</span></h3>
                         <div class="checkbox-group">
                             <label class="checkbox-option">
                                 <input type="checkbox" name="friday" value="All Day (8am-8pm)">
@@ -485,7 +485,7 @@
                     </div>
 
                     <div class="day-availability">
-                        <h3>Saturday</h3>
+                        <h3>Saturday <span class="required">*</span></h3>
                         <div class="checkbox-group">
                             <label class="checkbox-option">
                                 <input type="checkbox" name="saturday" value="All Day (8am-8pm)">
@@ -511,7 +511,7 @@
                     </div>
 
                     <div class="day-availability">
-                        <h3>Sunday</h3>
+                        <h3>Sunday <span class="required">*</span></h3>
                         <div class="checkbox-group">
                             <label class="checkbox-option">
                                 <input type="checkbox" name="sunday" value="All Day (8am-8pm)">
@@ -747,8 +747,8 @@
             const data = {
                 'Submission ID': crypto.randomUUID(),
                 'Submission time': new Date().toISOString().replace('T', ' ').substring(0, 19),
-                'Your Name:': formData.get('cleanerName'),
-                'Week Starting (Monday)': formData.get('weekStart'),
+                'Your Name:': document.getElementById('cleanerName').value,
+                'Week Starting (Monday)': document.getElementById('weekStart').value,
                 'How would you like to submit your availability?': submissionType === 'sameAsLastWeek' ? '✅ Same as last week (fastest)' : (submissionType === 'eachDay' ? '📝 Fill out each day' : '🎯 I can only work specific hours (part-time)'),
                 'Monday Availability': '',
                 'Tuesday Availability': '',
@@ -781,6 +781,8 @@
                 'Additional Notes (Optional)': document.getElementById('additionalNotes').value
             };
 
+            console.log('Form data before processing:', data);
+
             if (submissionType === 'eachDay') {
                 const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
                 const dayMapping = {
@@ -794,28 +796,31 @@
                 };
                 
                 days.forEach(day => {
-                    const values = formData.getAll(day);
+                    const checkboxes = document.querySelectorAll(`input[name="${day}"]:checked`);
+                    const values = Array.from(checkboxes).map(cb => cb.value);
                     data[dayMapping[day]] = values.join(', ');
                 });
             } else if (submissionType === 'timeSlots') {
-                for (let i = 1; i <= 7; i++) {
-                    const day = formData.get(`slotDay${i}`);
-                    const start = formData.get(`slotStart${i}`);
-                    const end = formData.get(`slotEnd${i}`);
+                const slots = document.querySelectorAll('.time-slot-container');
+                slots.forEach((slot, index) => {
+                    const slotNum = index + 1;
+                    const daySelect = slot.querySelector(`select[name="slotDay${slotNum}"]`);
+                    const startInput = slot.querySelector(`input[name="slotStart${slotNum}"]`);
+                    const endInput = slot.querySelector(`input[name="slotEnd${slotNum}"]`);
                     
-                    if (day && start && end) {
-                        data[`Which day can you work? (Time Slot ${i})`] = day;
-                        data[`Start time (Time Slot ${i})`] = start;
-                        if (i === 6) {
-                            data[`End time (Time Slot 1) (1)`] = end;
+                    if (daySelect && startInput && endInput) {
+                        data[`Which day can you work? (Time Slot ${slotNum})`] = daySelect.value;
+                        data[`Start time (Time Slot ${slotNum})`] = startInput.value;
+                        if (slotNum === 6) {
+                            data[`End time (Time Slot 1) (1)`] = endInput.value;
                         } else {
-                            data[`End time (Time Slot ${i})`] = end;
+                            data[`End time (Time Slot ${slotNum})`] = endInput.value;
                         }
                     }
-                }
+                });
             }
 
-            console.log('Submission data:', data);
+            console.log('Final submission data:', data);
             
             // Send to Google Sheets via n8n webhook
             try {
