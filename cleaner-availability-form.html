@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cleaner Availability Submission</title>
+    <title>Weekly Availability Submission</title>
     <style>
         * {
             margin: 0;
@@ -287,33 +287,47 @@
             display: none;
         }
 
-        #eachDaySection, #timeSlotSection, #sameAsLastWeekSection {
-            margin-top: 20px;
-        }
-
         .icon {
             font-size: 20px;
             margin-right: 8px;
+        }
+
+        .info-banner {
+            background: #eef2ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .info-banner p {
+            color: #4a5568;
+            font-size: 14px;
+            line-height: 1.5;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🧹 Cleaner Availability Form</h1>
-            <p>Submit your weekly availability</p>
+            <h1>🧹 Weekly Availability Form</h1>
+            <p>Submit your availability for one week</p>
         </div>
 
         <div class="form-content">
             <div id="loadingMessage" class="loading">
                 <div class="spinner"></div>
-                Loading cleaners...
+                Loading...
             </div>
 
             <div id="errorMessage" class="error hidden"></div>
             <div id="successMessage" class="success hidden"></div>
 
             <form id="availabilityForm" class="hidden">
+                <div class="info-banner">
+                    <p>📅 <strong>Tip:</strong> Submit your availability for upcoming weeks to ensure you get scheduled!</p>
+                </div>
+
                 <div class="form-group">
                     <label>Your Name: <span class="required">*</span></label>
                     <select id="cleanerName" required>
@@ -329,10 +343,6 @@
                 <div class="form-group">
                     <label>How would you like to submit your availability? <span class="required">*</span></label>
                     <div class="radio-group">
-                        <label class="radio-option" data-type="sameAsLastWeek">
-                            <input type="radio" name="submissionType" value="sameAsLastWeek" required>
-                            <span><span class="icon">✅</span>Same as last week (fastest)</span>
-                        </label>
                         <label class="radio-option" data-type="eachDay">
                             <input type="radio" name="submissionType" value="eachDay" required>
                             <span><span class="icon">📝</span>Fill out each day</span>
@@ -342,13 +352,6 @@
                             <span><span class="icon">🎯</span>I can only work specific hours (part-time)</span>
                         </label>
                     </div>
-                </div>
-
-                <!-- Same as Last Week Section -->
-                <div id="sameAsLastWeekSection" class="hidden">
-                    <p style="color: #2d3748; padding: 15px; background: #edf2f7; border-radius: 8px;">
-                        Your availability will be copied from last week. Just click Submit!
-                    </p>
                 </div>
 
                 <!-- Each Day Section -->
@@ -539,7 +542,7 @@
                 <!-- Time Slot Section -->
                 <div id="timeSlotSection" class="hidden">
                     <div id="timeSlotsContainer"></div>
-                    <button type="button" class="add-slot-btn" onclick="addTimeSlot()">+ Add Another Time Slot</button>
+                    <button type="button" class="add-slot-btn" onclick="addTimeSlot()">+ Add Time Slot</button>
                 </div>
 
                 <div class="form-group">
@@ -555,6 +558,15 @@
     <script>
         let timeSlotCount = 0;
         let cleaners = [];
+
+        // Get URL parameters for pre-filling
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                name: params.get('name'),
+                week: params.get('week')
+            };
+        }
 
         // Load cleaners from n8n webhook
         async function loadCleaners() {
@@ -584,6 +596,15 @@
                     select.appendChild(option);
                 });
 
+                // Pre-fill from URL if available
+                const urlParams = getUrlParams();
+                if (urlParams.name && cleaners.includes(urlParams.name)) {
+                    select.value = urlParams.name;
+                }
+                if (urlParams.week) {
+                    document.getElementById('weekStart').value = urlParams.week;
+                }
+
                 document.getElementById('loadingMessage').classList.add('hidden');
                 document.getElementById('availabilityForm').classList.remove('hidden');
             } catch (error) {
@@ -602,7 +623,9 @@
             
             const minDate = nextMonday.toISOString().split('T')[0];
             document.getElementById('weekStart').min = minDate;
-            document.getElementById('weekStart').value = minDate;
+            if (!getUrlParams().week) {
+                document.getElementById('weekStart').value = minDate;
+            }
         }
 
         // Handle radio button selection styling
@@ -620,22 +643,17 @@
             radio.addEventListener('change', (e) => {
                 const eachDaySection = document.getElementById('eachDaySection');
                 const timeSlotSection = document.getElementById('timeSlotSection');
-                const sameAsLastWeekSection = document.getElementById('sameAsLastWeekSection');
                 
                 eachDaySection.classList.add('hidden');
                 timeSlotSection.classList.add('hidden');
-                sameAsLastWeekSection.classList.add('hidden');
                 
                 if (e.target.value === 'eachDay') {
                     eachDaySection.classList.remove('hidden');
                 } else if (e.target.value === 'timeSlots') {
                     timeSlotSection.classList.remove('hidden');
-                    // Add first time slot automatically
                     if (timeSlotCount === 0) {
                         addTimeSlot();
                     }
-                } else if (e.target.value === 'sameAsLastWeek') {
-                    sameAsLastWeekSection.classList.remove('hidden');
                 }
             });
         });
@@ -721,7 +739,6 @@
             `;
             container.appendChild(slotDiv);
             
-            // Hide add button if 7 slots reached
             if (timeSlotCount >= 7) {
                 document.querySelector('.add-slot-btn').style.display = 'none';
             }
@@ -743,6 +760,7 @@
             errorDiv.textContent = message;
             errorDiv.classList.remove('hidden');
             setTimeout(() => errorDiv.classList.add('hidden'), 5000);
+            window.scrollTo(0, 0);
         }
 
         // Show success message
@@ -757,8 +775,7 @@
         document.getElementById('availabilityForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const formData = new FormData(e.target);
-            const submissionType = formData.get('submissionType');
+            const submissionType = document.querySelector('input[name="submissionType"]:checked')?.value;
             
             // Validate "Fill out each day" - at least one option per day required
             if (submissionType === 'eachDay') {
@@ -766,145 +783,9 @@
                 const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
                 
                 for (let i = 0; i < days.length; i++) {
-                    const values = formData.getAll(days[i]);
-                    if (values.length === 0) {
+                    const checkboxes = document.querySelectorAll(`input[name="${days[i]}"]:checked`);
+                    if (checkboxes.length === 0) {
                         showError(`Please select at least one availability option for ${dayNames[i]}`);
                         return;
                     }
                 }
-            }
-            
-            // Validate time slots - at least one slot required
-            if (submissionType === 'timeSlots' && timeSlotCount === 0) {
-                showError('Please add at least one time slot');
-                return;
-            }
-            
-            // Build data object matching Google Sheets headers
-            const data = {
-                'Submission ID': crypto.randomUUID(),
-                'Submission time': new Date().toISOString().replace('T', ' ').substring(0, 19),
-                'Your Name:': document.getElementById('cleanerName').value,
-                'Week Starting (Monday)': document.getElementById('weekStart').value,
-                'How would you like to submit your availability?': submissionType === 'sameAsLastWeek' ? '✅ Same as last week (fastest)' : (submissionType === 'eachDay' ? '📝 Fill out each day' : '🎯 I can only work specific hours (part-time)'),
-                'Monday Availability': '',
-                'Tuesday Availability': '',
-                'Monday Availability (1)': '',
-                'Monday Availability (2)': '',
-                'Monday Availability (3)': '',
-                'Monday Availability (4)': '',
-                'Monday Availability (5)': '',
-                'Which day can you work? (Time Slot 1)': '',
-                'Start time (Time Slot 1)': '',
-                'End time (Time Slot 1)': '',
-                'Which day can you work? (Time Slot 2)': '',
-                'Start time (Time Slot 2)': '',
-                'End time (Time Slot 2)': '',
-                'Which day can you work? (Time Slot 3)': '',
-                'Start time (Time Slot 3)': '',
-                'End time (Time Slot 3)': '',
-                'Which day can you work? (Time Slot 4)': '',
-                'Start time (Time Slot 4)': '',
-                'End time (Time Slot 4)': '',
-                'Which day can you work? (Time Slot 5)': '',
-                'Start time (Time Slot 5)': '',
-                'End time (Time Slot 5)': '',
-                'Which day can you work? (Time Slot 6)': '',
-                'Start time (Time Slot 6)': '',
-                'End time (Time Slot 1) (1)': '',
-                'Which day can you work? (Time Slot 7)': '',
-                'Start time (Time Slot 7)': '',
-                'End time (Time Slot 7)': '',
-                'Additional Notes (Optional)': document.getElementById('additionalNotes').value
-            };
-
-            console.log('Form data before processing:', data);
-
-            if (submissionType === 'eachDay') {
-                const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-                const dayMapping = {
-                    'monday': 'Monday Availability',
-                    'tuesday': 'Tuesday Availability',
-                    'wednesday': 'Monday Availability (1)',
-                    'thursday': 'Monday Availability (2)',
-                    'friday': 'Monday Availability (3)',
-                    'saturday': 'Monday Availability (4)',
-                    'sunday': 'Monday Availability (5)'
-                };
-                
-                days.forEach(day => {
-                    const checkboxes = document.querySelectorAll(`input[name="${day}"]:checked`);
-                    const values = Array.from(checkboxes).map(cb => cb.value);
-                    data[dayMapping[day]] = values.join(', ');
-                });
-            } else if (submissionType === 'timeSlots') {
-                const slots = document.querySelectorAll('.time-slot-container');
-                slots.forEach((slot, index) => {
-                    const slotNum = index + 1;
-                    const daySelect = slot.querySelector(`select[name="slotDay${slotNum}"]`);
-                    const startInput = slot.querySelector(`input[name="slotStart${slotNum}"]`);
-                    const endInput = slot.querySelector(`input[name="slotEnd${slotNum}"]`);
-                    
-                    if (daySelect && startInput && endInput) {
-                        data[`Which day can you work? (Time Slot ${slotNum})`] = daySelect.value;
-                        data[`Start time (Time Slot ${slotNum})`] = startInput.value;
-                        if (slotNum === 6) {
-                            data[`End time (Time Slot 1) (1)`] = endInput.value;
-                        } else {
-                            data[`End time (Time Slot ${slotNum})`] = endInput.value;
-                        }
-                    }
-                });
-            }
-
-            console.log('Final submission data:', data);
-            
-            // Send to Google Sheets via n8n webhook
-            try {
-                const submitButton = e.target.querySelector('.submit-btn');
-                submitButton.disabled = true;
-                submitButton.textContent = 'Submitting...';
-                
-                // We'll create an n8n webhook to handle this
-                const SUBMIT_WEBHOOK = 'https://dustbusters-n8n.duckdns.org/webhook/submit-availability';
-                
-                const response = await fetch(SUBMIT_WEBHOOK, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
-                
-                const result = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(result.message || 'Failed to submit');
-                }
-                
-                showSuccess('✅ Availability submitted successfully! Thank you.');
-                e.target.reset();
-                document.getElementById('eachDaySection').classList.add('hidden');
-                document.getElementById('timeSlotSection').classList.add('hidden');
-                document.getElementById('sameAsLastWeekSection').classList.add('hidden');
-                document.getElementById('timeSlotsContainer').innerHTML = '';
-                timeSlotCount = 0;
-                setMinDate();
-                
-                submitButton.disabled = false;
-                submitButton.textContent = 'Submit Availability';
-            } catch (error) {
-                console.error('Submission error:', error);
-                showError('Failed to submit. Please try again or contact support.');
-                const submitButton = e.target.querySelector('.submit-btn');
-                submitButton.disabled = false;
-                submitButton.textContent = 'Submit Availability';
-            }
-        });
-
-        // Initialize
-        loadCleaners();
-        setMinDate();
-    </script>
-</body>
-</html>
