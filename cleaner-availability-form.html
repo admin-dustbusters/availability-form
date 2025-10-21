@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+\<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -307,6 +307,7 @@
 
         <div class="form-content">
             <div id="loadingMessage" class="loading">
+                <div class="spinner"></div>
                 Loading cleaners...
             </div>
 
@@ -722,6 +723,26 @@
             const formData = new FormData(e.target);
             const submissionType = formData.get('submissionType');
             
+            // Validate "Fill out each day" - at least one option per day required
+            if (submissionType === 'eachDay') {
+                const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+                const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+                
+                for (let i = 0; i < days.length; i++) {
+                    const values = formData.getAll(days[i]);
+                    if (values.length === 0) {
+                        showError(`Please select at least one availability option for ${dayNames[i]}`);
+                        return;
+                    }
+                }
+            }
+            
+            // Validate time slots - at least one slot required
+            if (submissionType === 'timeSlots' && timeSlotCount === 0) {
+                showError('Please add at least one time slot');
+                return;
+            }
+            
             // Build data object matching Google Sheets headers
             const data = {
                 'Submission ID': crypto.randomUUID(),
@@ -813,8 +834,10 @@
                     body: JSON.stringify(data)
                 });
                 
+                const result = await response.json();
+                
                 if (!response.ok) {
-                    throw new Error('Failed to submit');
+                    throw new Error(result.message || 'Failed to submit');
                 }
                 
                 showSuccess('✅ Availability submitted successfully! Thank you.');
