@@ -569,49 +569,50 @@
         }
 
         // Load cleaners from n8n webhook
-        async function loadCleaners() {
-            try {
-                const WEBHOOK_URL = 'https://dustbusters-n8n.duckdns.org/webhook/cleaners-list';
-                
-                const response = await fetch(WEBHOOK_URL);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                const result = Array.isArray(data) ? data[0] : data;
-                
-                if (!result.success || !result.cleaners || result.cleaners.length === 0) {
-                    throw new Error('No cleaners found');
-                }
-
-                cleaners = result.cleaners;
-
-                const select = document.getElementById('cleanerName');
-                cleaners.forEach(name => {
-                    const option = document.createElement('option');
-                    option.value = name;
-                    option.textContent = name;
-                    select.appendChild(option);
-                });
-
-                // Pre-fill from URL if available
-                const urlParams = getUrlParams();
-                if (urlParams.name && cleaners.includes(urlParams.name)) {
-                    select.value = urlParams.name;
-                }
-                if (urlParams.week) {
-                    document.getElementById('weekStart').value = urlParams.week;
-                }
-
-                document.getElementById('loadingMessage').classList.add('hidden');
-                document.getElementById('availabilityForm').classList.remove('hidden');
-            } catch (error) {
-                document.getElementById('loadingMessage').classList.add('hidden');
-                showError('Failed to load cleaners: ' + error.message);
-            }
+async function loadCleaners() {
+    try {
+        const WEBHOOK_URL = 'https://dustbusters-n8n.duckdns.org/webhook/cleaners-list';
+        
+        const response = await fetch(WEBHOOK_URL);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+        
+        const data = await response.json();
+        
+        // Your webhook returns the object directly, not in an array
+        if (!data.success || !data.cleaners || data.cleaners.length === 0) {
+            throw new Error('No cleaners found');
+        }
+
+        cleaners = data.cleaners;
+
+        const select = document.getElementById('cleanerName');
+        cleaners.forEach(name => {
+            const option = document.createElement('option');
+            option.value = name;
+            option.textContent = name;
+            select.appendChild(option);
+        });
+
+        // Pre-fill from URL if available
+        const urlParams = getUrlParams();
+        if (urlParams.name && cleaners.includes(urlParams.name)) {
+            select.value = urlParams.name;
+        }
+        if (urlParams.week) {
+            document.getElementById('weekStart').value = urlParams.week;
+        }
+
+        document.getElementById('loadingMessage').classList.add('hidden');
+        document.getElementById('availabilityForm').classList.remove('hidden');
+    } catch (error) {
+        console.error('Load error:', error);
+        document.getElementById('loadingMessage').classList.add('hidden');
+        showError('Failed to load cleaners: ' + error.message);
+    }
+}
 
         // Set minimum date to next Monday
         function setMinDate() {
