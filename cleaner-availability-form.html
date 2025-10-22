@@ -395,7 +395,7 @@
                         </div>
                         <div class="nav-buttons">
                            <span></span>
-                           <button type="button" class="nav-btn next-btn" onclick="nextStep()">Next</button>
+                            <button type="button" class="nav-btn next-btn" onclick="nextStep()">Next</button>
                         </div>
                     </div>
 
@@ -406,8 +406,8 @@
                          <div class="week-header">Step 6: Review Your Submission</div>
                          <div id="reviewContainer"></div>
                          <div class="nav-buttons">
-                           <button type="button" class="nav-btn prev-btn" onclick="prevStep()">Back</button>
-                           <button type="submit" class="nav-btn submit-btn">Submit All 4 Weeks</button>
+                            <button type="button" class="nav-btn prev-btn" onclick="prevStep()">Back</button>
+                            <button type="submit" class="nav-btn submit-btn">Submit All 4 Weeks</button>
                         </div>
                     </div>
                 </form>
@@ -543,7 +543,7 @@
                 data.timeSlots = [];
                 const slots = document.querySelectorAll(`#timeSlotsContainer_${weekIndex} .time-slot-container`);
                 slots.forEach((slot) => {
-                     data.timeSlots.push({
+                    data.timeSlots.push({
                         day: slot.querySelector(`select[name^="slotDay"]`).value,
                         start: slot.querySelector(`select[name^="slotStart"]`).value,
                         end: slot.querySelector(`select[name^="slotEnd"]`).value,
@@ -563,13 +563,13 @@
 
             let content = `<h4>Week ${index + 1} (${formatDate(weekStartDates[index])})</h4>`;
             if (data.submissionTypeForReview === 'sameAsPrevious') {
-                 content += `<p>✅ Same as Week ${index}</p>`;
+                content += `<p>✅ Same as Week ${index}</p>`;
             } else if (data.submissionType === 'eachDay') {
-                 content += `<p>📝 Submitted availability for each day.</p>`;
+                content += `<p>📝 Submitted availability for each day.</p>`;
             } else if (data.submissionType === 'timeSlots') {
-                 content += `<p>🎯 Submitted ${data.timeSlots ? data.timeSlots.length : 0} specific time slot(s).</p>`;
+                content += `<p>🎯 Submitted ${data.timeSlots ? data.timeSlots.length : 0} specific time slot(s).</p>`;
             } else {
-                 content += `<p>No availability submitted for this week.</p>`;
+                content += `<p>No availability submitted for this week.</p>`;
             }
             weekDiv.innerHTML = content;
             container.appendChild(weekDiv);
@@ -686,7 +686,7 @@
         } else if (sourceData.submissionType === 'timeSlots' && sourceData.timeSlots) {
             summaryHTML += `<ul>`;
             sourceData.timeSlots.forEach(slot => {
-                 summaryHTML += `<li><strong>${slot.day}:</strong> ${slot.start} - ${slot.end}</li>`;
+                summaryHTML += `<li><strong>${slot.day}:</strong> ${slot.start} - ${slot.end}</li>`;
             });
             summaryHTML += `</ul>`;
         } else {
@@ -709,7 +709,7 @@
                 <button type="button" class="remove-slot-btn" onclick="this.parentElement.parentElement.remove(); timeSlotCounts[${weekIndex}]--;">Remove</button>
             </div>
             <div class="time-inputs">
-                 <div class="form-group">
+                <div class="form-group">
                     <label>Day</label>
                     <select name="slotDay_${weekIndex}_${timeSlotCounts[weekIndex]}" required>
                         <option value="">Select...</option>
@@ -803,8 +803,8 @@
             } else if (data.submissionType === 'timeSlots') {
                 submissionTypeText = '⏰ I can only work specific hours (part-time)';
             } else {
-                 // Handle case where copied data still needs a type string
-                 // This assumes the source data will have a valid type
+                // Handle case where copied data still needs a type string
+                // This assumes the source data will have a valid type
                 if (data.days) submissionTypeText = '📝 Fill out each day';
                 if (data.timeSlots) submissionTypeText = '⏰ I can only work specific hours (part-time)';
             }
@@ -876,6 +876,10 @@
             
             document.getElementById('mainForm').classList.add('hidden');
             document.getElementById('successMessage').classList.remove('hidden');
+
+            // THIS IS THE ONLY CHANGE: Send the message on success
+            window.parent.postMessage('availabilitySubmitted', '*');
+
         } catch (error) {
             showError(`Submission Failed: ${error.message}. Please try again.`);
         } finally {
